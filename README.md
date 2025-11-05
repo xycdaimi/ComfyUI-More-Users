@@ -1,5 +1,5 @@
 <p align="center">
-<img src="./sentinel-web/assets/logo_transparent.png" alt="ComfyUI Sentinel Logo" width="200px">
+<img src="./sentinel-web/assets/logo_transparent.png" alt="ComfyUI More Users Logo" width="200px">
 </p>
 
 <div align="center">
@@ -176,6 +176,6 @@ You can:
 
 ## ⚠️ Disclaimer  
 
-*While **ComfyUI Sentinel** enhances security for ComfyUI, it **does not guarantee absolute protection**. Security is about risk mitigation, not elimination. Users are responsible for implementing their own security measures.*  
+*While **ComfyUI More Users** enhances security for ComfyUI, it **does not guarantee absolute protection**. Security is about risk mitigation, not elimination. Users are responsible for implementing their own security measures.*  
 
 ***Use at your own discretion.***
