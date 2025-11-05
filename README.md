@@ -4,7 +4,8 @@
 
 <div align="center">
 
-# ComfyUI Sentinel
+# ComfyUI More Users
+#### Written based on ComfyUI Sentinel
 #### ComfyUI Extension for Advanced Security. Implements login, multi-user registration, IP filtering, and user-specific input/output directories.
 
 </div>
@@ -28,12 +29,12 @@ cd ComfyUI/custom_nodes
 
 2. Clone this repository:
 ```bash
-git clone https://github.com/LucipherDev/ComfyUI-Sentinel
+git clone https://github.com/xycdaimi/ComfyUI-More-Users
 ```
 
 3. Install dependencies:
 ```bash
-cd ComfyUI-Sentinel
+cd ComfyUI-More-Users
 pip install -r requirements.txt
 ```
 
@@ -83,7 +84,7 @@ pip install -r requirements.txt
         - Type: **bool**
         - Default: **false**
 
-2. **Run ComfyUI**
+2. **Run ComfyUI with --multi-user**
 3. **Access the GUI URL**
 4. **Register the admin account**
 
