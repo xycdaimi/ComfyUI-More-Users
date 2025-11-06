@@ -279,6 +279,9 @@ async function login(event) {
         }
 
         document.cookie = cookieString;
+        if (result.user_settings_id) {
+          localStorage.setItem("Comfy.userId", result.user_settings_id); 
+        }
         // localStorage.setItem("Comfy.userId", result.user_settings_id);
         addToast(result.message, "success");
         window.location.href = "/";
@@ -365,7 +368,8 @@ async function generate(event) {
 
         form.reset();
 
-        alert("API Token:\n"+result.jwt_token+"\n\nPlease copy this token and store it in a safe place. You will not be able to retrieve it again.");
+        //alert("API Token:\n"+result.jwt_token+"\n\nPlease copy this token and store it in a safe place. You will not be able to retrieve it again.");
+        showTokenModal(result.jwt_token);
       } else {
         addToast(
           result.error || result.message || "Generation failed",
@@ -382,3 +386,80 @@ async function generate(event) {
 }
 
 loadTimeoutFromStorage(window.location.pathname.replace("/", "").split("_")[0])
+
+
+/**
+ * 弹出模态框显示 Token 并提供复制功能
+ * @param {string} token API Token 密钥
+ */
+function showTokenModal(token) {
+    const modalId = 'token-modal';
+    
+    // 如果模态框已经存在，先移除它
+    const existingModal = document.getElementById(modalId);
+    if (existingModal) {
+        existingModal.remove();
+    }
+    
+    // 模态框 HTML 结构
+    const modalHTML = `
+        <div id="${modalId}" class="modal">
+            <div class="modal-content">
+                <span class="close-button">&times;</span>
+                <h3>API Token 已生成</h3>
+                <p>请复制此密钥并安全保存，您将无法再次获取它。</p>
+                <div class="token-container">
+                    <input type="text" id="api-token-input" value="${token}" readonly>
+                    <button id="copy-token-btn" class="copy-btn">复制</button>
+                </div>
+                <div id="copy-status" style="margin-top: 10px; color: green; display: none;">已复制到剪贴板！</div>
+            </div>
+        </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    const modal = document.getElementById(modalId);
+    const closeButton = modal.querySelector(".close-button");
+    const copyButton = document.getElementById("copy-token-btn");
+    const tokenInput = document.getElementById("api-token-input");
+    const copyStatus = document.getElementById("copy-status");
+
+    // 显示模态框
+    modal.style.display = "block";
+
+    // 复制逻辑
+    copyButton.onclick = async function() {
+        try {
+            await navigator.clipboard.writeText(token);
+            copyStatus.style.display = "block";
+            copyButton.textContent = "已复制";
+            setTimeout(() => {
+                copyStatus.style.display = "none";
+                copyButton.textContent = "复制";
+            }, 2000);
+        } catch (err) {
+            // 兼容旧浏览器或非 HTTPS 环境
+            tokenInput.select();
+            document.execCommand('copy');
+            copyStatus.style.display = "block";
+            copyButton.textContent = "已复制 (旧方法)";
+            setTimeout(() => {
+                copyStatus.style.display = "none";
+                copyButton.textContent = "复制";
+            }, 3000);
+        }
+    }
+
+    // 关闭逻辑
+    closeButton.onclick = function() {
+        modal.style.display = "none";
+        modal.remove();
+    }
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+            modal.remove();
+        }
+    }
+}

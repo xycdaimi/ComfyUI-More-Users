@@ -89,6 +89,14 @@ async def post_register(request: web.Request) -> web.Response:
         new_user_password,
         not bool(admin_user_id),
     )
+    try:
+        # 调用 ComfyUI 的 UserManager.add_user
+        # 这将生成隔离 Key (例如: "username_uuid") 并写入 ComfyUI 的 users.json
+        instance.user_manager.add_user(new_user_username) 
+    except Exception as e:
+        # 记录 ComfyUI 注册失败的错误
+        logger.error(f"Failed to add user to ComfyUI UserManager: {e}")
+        return web.json_response({"error": f"Failed to add user to ComfyUI UserManager: {e}"}, status=400)
 
     logger.registration_success(
         ip, new_user_username, username if admin_user_id is not None else None
@@ -125,11 +133,13 @@ async def post_login(request: web.Request) -> web.Response:
 
         user_id, _ = users_db.get_user(username)
         token = jwt_auth.create_access_token({"id": user_id, "username": username})
+
+
         response = web.json_response(
             {
                 "message": "Login successful",
                 "jwt_token": token,
-                # "user_settings_id": next((key for key, value in instance.user_manager.users.items() if value == username), ""),
+                "user_settings_id": next((key for key, value in instance.user_manager.users.items() if value == username), ""),
             }
         )
         secure_flag = request.headers.get("X-Forwarded-Proto", "http") == "https"

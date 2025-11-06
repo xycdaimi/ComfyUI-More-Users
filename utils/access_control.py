@@ -160,8 +160,16 @@ class AccessControl:
             self.server.queue_updated()
             return (item["prompt"], i)
 
+    # def user_queue_task_done(
+    #     self, item_id, history_result, status: Optional["PromptQueue.ExecutionStatus"]
+    # ):
+    #     """Mark a user-specific queue task as done."""
     def user_queue_task_done(
-        self, item_id, history_result, status: Optional["PromptQueue.ExecutionStatus"]
+        self,
+        item_id,
+        history_result,
+        status: Optional["PromptQueue.ExecutionStatus"],
+        process_item: Optional[dict] = None, # <--- 新增此参数
     ):
         """Mark a user-specific queue task as done."""
         with self.__prompt_queue.mutex:
@@ -184,11 +192,20 @@ class AccessControl:
 
     def user_queue_get_current_queue(self):
         """Get the current user-specific queue."""
+        current_user_id = self.get_current_user_id()
         with self.__prompt_queue.mutex:
             out = []
             for x in self.__prompt_queue.currently_running.values():
-                out += [x]
-            return (out, copy.deepcopy(self.__prompt_queue.queue))
+                if x.get("user_id") == current_user_id:
+                    out.append(x["prompt"]) 
+                #out += [x]
+            # return (out, copy.deepcopy(self.__prompt_queue.queue))
+            pending_queue = [
+                item["prompt"]
+                for item in self.__prompt_queue.queue
+                if item["user_id"] == self.get_current_user_id()
+            ]
+            return (out, pending_queue)
 
     def user_queue_wipe_queue(self):
         """Wipe the user-specific queue."""
@@ -258,6 +275,8 @@ class AccessControl:
         self.__prompt_queue.get = self.user_queue_get
         self.__prompt_queue.task_done = self.user_queue_task_done
         self.__prompt_queue.get_current_queue = self.user_queue_get_current_queue
+        if hasattr(self.__prompt_queue, 'get_current_queue_volatile'):
+            self.__prompt_queue.get_current_queue_volatile = self.user_queue_get_current_queue
         self.__prompt_queue.wipe_queue = self.user_queue_wipe_queue
         self.__prompt_queue.delete_queue_item = self.user_queue_delete_queue_item
         self.__prompt_queue.get_history = self.user_queue_get_history
